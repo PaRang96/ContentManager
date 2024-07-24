@@ -5,7 +5,8 @@ TargetContent::TargetContent()
 
 }
 
-TargetContent::TargetContent(const std::string& path, const int& launchDelay, const std::vector<std::string>& launchParams)
+TargetContent::TargetContent(const std::string& path, const int& launchDelay,
+	const std::vector<std::string>& launchParams)
 {
 	std::cout << "Path: " << path << '\n';
 	std::cout << "Launch Delay: " << launchDelay << '\n';
@@ -64,7 +65,19 @@ bool TargetContent::IsTargetToe(const std::string& path)
 	return path.find("toe") != std::string::npos;
 }
 
-HWND TargetContent::Boot()
+HWND TargetContent::Boot(int delay, std::string& TouchPlayerPath)
+{
+	if (!IsTargetToe())
+	{
+		return BootWithDelay(delay);
+	}
+	else
+	{
+		return BootToeWithDelay(TouchPlayerPath, delay);
+	}
+}
+
+HWND TargetContent::Boot_Internal()
 {
 	STARTUPINFOA StartupInfo = { sizeof(StartupInfo) };
 	PROCESS_INFORMATION ProcessInformation;
@@ -102,21 +115,22 @@ HWND TargetContent::Boot()
 	}
 }
 
-HWND TargetContent::BootWithDelay(int& delay)
+HWND TargetContent::BootWithDelay(int delay)
 {
 	std::promise<HWND> promise;
 	std::future<HWND> future = promise.get_future();
 
 	std::thread([delay, this, promise = std::move(promise)]() mutable {
+		std::cout << "Thread ID: " << std::this_thread::get_id() << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-		HWND bootHwnd = Boot();
+		HWND bootHwnd = Boot_Internal();
 		promise.set_value(bootHwnd);
 		}).detach();
 
 	return future.get();
 }
 
-HWND TargetContent::BootToe(std::string& TouchPlayerPath)
+HWND TargetContent::BootToe_Internal(std::string& TouchPlayerPath)
 {
 	STARTUPINFOA StartupInfo = { sizeof(StartupInfo) };
 	PROCESS_INFORMATION ProcessInformation;
@@ -146,14 +160,15 @@ HWND TargetContent::BootToe(std::string& TouchPlayerPath)
 	}
 }
 
-HWND TargetContent::BootToeWithDelay(std::string& TouchPlayerPath, int& delay)
+HWND TargetContent::BootToeWithDelay(std::string& TouchPlayerPath, int delay)
 {
 	std::promise<HWND> promise;
 	std::future<HWND> future = promise.get_future();
 
 	std::thread([delay, this, &TouchPlayerPath, promise = std::move(promise)]() mutable {
+		std::cout << "Thread ID: " << std::this_thread::get_id() << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-		HWND bootHwnd = BootToe(TouchPlayerPath);
+		HWND bootHwnd = BootToe_Internal(TouchPlayerPath);
 		promise.set_value(bootHwnd);
 		}).detach();
 

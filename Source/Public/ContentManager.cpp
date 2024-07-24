@@ -9,12 +9,12 @@ static bool bShouldMinimizeSelf = false;
 static std::string TouchPlayerPath = "";
 static std::vector<rapidjson::GenericObject<false, rapidjson::Value>> ContentCandidates;
 
-constexpr int	CHECKDELAY = 100;
-constexpr char	TOUCHPLAYERPATH[] = "TouchPlayerPath";
-constexpr char	TARGETPROGRAMS[] = "TargetPrograms";
-constexpr char	PATH[] = "path";
-constexpr char	LAUNCHDELAY[] = "launch_delay";
-constexpr char	LAUNCHPARAMS[] = "launch_params";
+constexpr int	CHECKDELAY			= 100;
+constexpr char	TOUCHPLAYERPATH[]	= "TouchPlayerPath";
+constexpr char	TARGETPROGRAMS[]	= "TargetPrograms";
+constexpr char	PATH[]				= "path";
+constexpr char	LAUNCHDELAY[]		= "launch_delay";
+constexpr char	LAUNCHPARAMS[]		= "launch_params";
 
 int main()
 {
@@ -28,6 +28,7 @@ int main()
 
 	for (const auto& ContentCandidate : ContentCandidates)
 	{
+		// ready needed params for target content
 		auto path = ContentCandidate[PATH].GetString();
 		auto launchDelay = ContentCandidate[LAUNCHDELAY].GetInt();
 		auto launchParamsCandidates = ContentCandidate[LAUNCHPARAMS].GetArray();
@@ -40,31 +41,26 @@ int main()
 			}
 		}
 
+		// generate target content
 		TargetContent* NewContent = new TargetContent(path, launchDelay, launchParams);
 
 		ManagedContents.push_back(NewContent);
 	}
 
 	// boot up managed contents, apply delay if needed
-	for (auto& ManagedContent : ManagedContents)
+	for (const auto& ManagedContent : ManagedContents)
 	{
-		if (ManagedContent->IsTargetToe())
-		{
-			ManagedContent->BootToeWithDelay(TouchPlayerPath, ManagedContent->GetLaunchDelay());
-		}
-		else
-		{
-			ManagedContent->BootWithDelay(ManagedContent->GetLaunchDelay());
-		}
+		ManagedContent->Boot(ManagedContent->GetLaunchDelay(), TouchPlayerPath);
 		std::cout << "Process ID : " << ManagedContent->GetProcessID() <<
 					 " HWND: "		 << ManagedContent->GetHWND()	   <<
-				  std::endl;
+					 '\n'			 << std::endl;
 	}
-
+	
 	// check up things & if target is not running, reboot without delay
+	// main loop
 	while (true)
 	{
-		for (auto& ManagedContent : ManagedContents)
+		for (const auto& ManagedContent : ManagedContents)
 		{
 			if (ManagedContent->IsRunning())
 			{
@@ -72,19 +68,13 @@ int main()
 			}
 			else
 			{
-				if (ManagedContent->IsTargetToe())
-				{
-					ManagedContent->BootToe(TouchPlayerPath);
-				}
-				else
-				{
-					ManagedContent->Boot();
-				}
+				int noDelay = 0;
+				ManagedContent->Boot(noDelay, TouchPlayerPath);
 				std::cout << "Process ID : " << ManagedContent->GetProcessID() <<
 							 " HWND: "		 << ManagedContent->GetHWND()	   <<
-						  std::endl;
+							 '\n'			 << std::endl;
 			}
-			Sleep(CHECKDELAY);
+			std::this_thread::sleep_for(std::chrono::milliseconds(CHECKDELAY));
 		}
 	}
 

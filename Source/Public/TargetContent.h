@@ -32,9 +32,10 @@ public:
 	/// <param name="path"> target content's path (url), recommend using absolute path </param>
 	/// <param name="launchDelay"> launch delay </param>
 	/// <param name="launchParams"> execution arguments </param>
-	TargetContent(const std::string& path, const int& launchDelay, const std::vector<std::string>& launchParams);
+	TargetContent(const std::string& path, const int& launchDelay,
+		const std::vector<std::string>& launchParams);
 	virtual ~TargetContent();
-
+	
 private:
 	EnumWindowsData WindowsData;
 
@@ -44,8 +45,8 @@ private:
 	/// <summary>
 	/// Distinguish whether target content is touch designer file or not
 	/// </summary>
-	/// <param name="path"></param>
-	/// <returns></returns>
+	/// <param name="path"> Target content's path </param>
+	/// <returns> If target content contains "toe" in path, returns true </returns>
 	bool IsTargetToe(const std::string& path);
 
 	int LaunchDelay = 0;
@@ -58,18 +59,28 @@ protected:
 	
 public:
 	/// <summary>
+	/// Boot up target content, wrapper for all the boots
+	/// </summary>
+	/// <param name="delay"> Delay in milisecond </param>
+	/// <param name="TouchPlayerPath"></param>
+	/// <returns></returns>
+	HWND Boot(int delay, std::string& TouchPlayerPath);
+
+private:
+public:
+	/// <summary>
 	/// Boot up target exe
 	/// CAN deal with execution arguments
 	/// </summary>
 	/// <returns></returns>
-	HWND Boot();
+	HWND Boot_Internal();
 
 	/// <summary>
 	/// Boot up target exe with delay
 	/// </summary>
 	/// <param name="delay"> Delay in milisecond </param>
 	/// <returns></returns>
-	HWND BootWithDelay(int& delay);
+	HWND BootWithDelay(int delay);
 	
 	/// <summary>
 	/// Boot up target toe
@@ -77,7 +88,7 @@ public:
 	/// </summary>
 	/// <param name="TouchPlayerPath"></param>
 	/// <returns></returns>
-	HWND BootToe(std::string& TouchPlayerPath);
+	HWND BootToe_Internal(std::string& TouchPlayerPath);
 
 	/// <summary>
 	/// Boot up target toe with delay
@@ -85,8 +96,9 @@ public:
 	/// <param name="TouchPlayerPath"></param>
 	/// <param name="delay"> Delay in milisecond </param>
 	/// <returns></returns>
-	HWND BootToeWithDelay(std::string& TouchPlayerPath, int& delay);
+	HWND BootToeWithDelay(std::string& TouchPlayerPath, int delay);
 
+public:
 	/// <summary>
 	/// Close target exe
 	/// </summary>
