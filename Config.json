@@ -1,0 +1,15 @@
+{
+  "TargetPrograms": [
+    {
+      "path": "C:/Users/Newmedia2/Desktop/hercules_3-2-8.exe",
+      "launch_delay": 3000,
+      "launch_params": []
+    },
+    {
+      "path": "C:/Users/Newmedia2/Desktop/Sample.toe",
+      "launch_delay": 1000,
+      "launch_params": []
+    }
+  ],
+  "TouchPlayerPath": "C:/Program Files/Derivative/TouchDesigner/bin/TouchPlayer.exe"
+}
